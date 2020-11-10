@@ -3,6 +3,8 @@ import ReactMarkdown from 'react-markdown';
 import MdEditor from 'react-markdown-editor-lite';
 import 'react-markdown-editor-lite/lib/index.css';
 import { Col, Row } from 'antd';
+import {iCloudCertificate} from "@/utils/utils";
+import {certificate} from "@/pages/EditArticle/service";
 
 // const MdEditor=lazy(()=>import('react-markdown-editor-lite'))
 export default class EditArticle extends React.PureComponent<{}, {}> {
@@ -22,8 +24,16 @@ export default class EditArticle extends React.PureComponent<{}, {}> {
         resolve(data.target.result);
       };
       reader.readAsDataURL(file);
+      this.iCloudCertificate()
     });
   };
+
+  iCloudCertificate = async () =>{
+    certificate({}).then((res:any)=>{
+      console.log('uploadToken--------------',res)
+    })
+
+};
 
   render() {
     return (
