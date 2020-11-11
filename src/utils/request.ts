@@ -28,6 +28,7 @@ const codeMessage = {
  */
 const errorHandler = (error: { response: Response }): Response => {
   const { response } = error;
+  console.log('error:',error)
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
     const { status, url } = response;
@@ -37,6 +38,7 @@ const errorHandler = (error: { response: Response }): Response => {
       description: errorText,
     });
   } else if (!response) {
+
     notification.error({
       description: '您的网络发生异常，无法连接服务器',
       message: '网络异常',
@@ -51,6 +53,7 @@ const errorHandler = (error: { response: Response }): Response => {
 const request = extend({
   errorHandler, // 默认错误处理
   credentials: 'include', // 默认请求是否带上cookie
+  // parseResponse: true,
 });
 
 export default request;

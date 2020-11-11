@@ -7,10 +7,13 @@
  */
 export default {
   dev: {
-    '/base_service/': {
+    '/base_service': {
       target: 'http://127.0.0.1:7001',
       changeOrigin: true,
-      pathRewrite: { '^': '' },
+      // timeout: 1000*60*3,
+      pathRewrite: {
+        '^/base_service': '',
+      },
     },
     '/api/': {
       target: 'https://preview.pro.ant.design',

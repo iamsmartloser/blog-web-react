@@ -4,3 +4,4 @@ const { NODE_ENV } = process.env;
 export const base_service = NODE_ENV==='development'? '/base_service' : 'http://127.0.0.1:7001';
 
 export const file_url = base_service + '/file/certificate';
+export const create_article_url = base_service + '/article/create';
