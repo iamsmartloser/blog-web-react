@@ -9,13 +9,14 @@ import {create_article_url} from "@/config/api-config";
 export default class EditArticle extends React.PureComponent<{}, {}> {
 
   state = {
-    markdown: '### 请输入文章内容'
+    markdown: '### 请输入文章内容',
+    title:null
   };
 
   // Finish!
-  handleEditorChange = ({html, markdown}) => {
-    // console.log('handleEditorChange',  text)
-    this.setState({markdown})
+  handleEditorChange = ({html, text}) => {
+    console.log('handleEditorChange',  text)
+    this.setState({markdown:text})
   };
 
   handleImageUpload = (file: File): Promise<string> => {
@@ -30,13 +31,13 @@ export default class EditArticle extends React.PureComponent<{}, {}> {
   };
 
   // status 文章状态'[0草稿，1发布，2删除，3审批中]'
-  // save=(status: number)=>{
-  //   const {markdown, title, status}=this.state;
-  //   request.post(create_article_url,{data:{markdown, title, status}})
-  //     .then((res:any)=>{
-  //
-  //     })
-  // };
+  save=(status:number)=>{
+    const {markdown, title}=this.state;
+    request.post(create_article_url,{data:{markdown, title, status}})
+      .then((res:any)=>{
+        console.log('save res---',res)
+      })
+  };
 
   render() {
     return (
@@ -49,9 +50,9 @@ export default class EditArticle extends React.PureComponent<{}, {}> {
           bordered={false}
           style={{width:400}}
           allowClear/>
-          <Button.Group style={{float: 'right'}}>
-            <Button>保存</Button>
-            <Button type={'primary'}>发布</Button>
+          <Button.Group style={{float: 'right',borderRadius: 5}}>
+            <Button onClick={()=>this.save(0)}>保存</Button>
+            <Button onClick={()=>this.save(1)} type={'primary'}>发布</Button>
           </Button.Group>
 
           {/*<br/>*/}
@@ -59,8 +60,8 @@ export default class EditArticle extends React.PureComponent<{}, {}> {
             defaultValue={this.state.markdown}
             style={{height: '500px'}}
             renderHTML={(text) => <ReactMarkdown source={text||this.state.markdown}/>}
-            onChange={this.handleEditorChange}
-            onImageUpload={this.handleImageUpload}
+            onChange={(data:any)=>this.handleEditorChange(data)}
+            onImageUpload={(file: File)=>this.handleImageUpload(file)}
           />
         </div>
     );

@@ -77,34 +77,34 @@ const Login: React.FC<LoginProps> = (props) => {
               defaultMessage: '账户密码登录',
             })}
           />
-          <Tabs.TabPane
-            key="mobile"
-            tab={intl.formatMessage({
-              id: 'pages.login.phoneLogin.tab',
-              defaultMessage: '手机号登录',
-            })}
-          />
+          {/*<Tabs.TabPane*/}
+            {/*key="mobile"*/}
+            {/*tab={intl.formatMessage({*/}
+              {/*id: 'pages.login.phoneLogin.tab',*/}
+              {/*defaultMessage: '手机号登录',*/}
+            {/*})}*/}
+          {/*/>*/}
         </Tabs>
 
-        {status === 'error' && loginType === 'account' && !submitting && (
+        {status !== 200 && loginType === 'account' && !submitting && (
           <LoginMessage
             content={intl.formatMessage({
               id: 'pages.login.accountLogin.errorMessage',
-              defaultMessage: '账户或密码错误（admin/ant.design)',
+              defaultMessage: '账户或密码错误',
             })}
           />
         )}
         {type === 'account' && (
           <>
             <ProFormText
-              name="userName"
+              name="account"
               fieldProps={{
                 size: 'large',
                 prefix: <UserOutlined className={styles.prefixIcon} />,
               }}
               placeholder={intl.formatMessage({
                 id: 'pages.login.username.placeholder',
-                defaultMessage: '用户名: admin or user',
+                defaultMessage: '输入账号或手机号',
               })}
               rules={[
                 {
@@ -112,7 +112,7 @@ const Login: React.FC<LoginProps> = (props) => {
                   message: (
                     <FormattedMessage
                       id="pages.login.username.required"
-                      defaultMessage="请输入用户名!"
+                      defaultMessage="请输入账号或手机号!"
                     />
                   ),
                 },
@@ -126,7 +126,7 @@ const Login: React.FC<LoginProps> = (props) => {
               }}
               placeholder={intl.formatMessage({
                 id: 'pages.login.password.placeholder',
-                defaultMessage: '密码: ant.design',
+                defaultMessage: '输入密码',
               })}
               rules={[
                 {
@@ -143,7 +143,7 @@ const Login: React.FC<LoginProps> = (props) => {
           </>
         )}
 
-        {status === 'error' && loginType === 'mobile' && !submitting && (
+        {status !== 200 && loginType === 'mobile' && !submitting && (
           <LoginMessage content="验证码错误" />
         )}
         {type === 'mobile' && (

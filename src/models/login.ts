@@ -5,9 +5,10 @@ import { fakeAccountLogin } from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { message } from 'antd';
+import {setStore} from "@/utils/store";
 
 export interface StateType {
-  status?: 'ok' | 'error';
+  status?: number;
   type?: string;
   currentAuthority?: 'user' | 'guest' | 'admin';
 }
@@ -34,14 +35,23 @@ const Model: LoginModelType = {
   effects: {
     *login({ payload }, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
-      yield put({
-        type: 'changeLoginStatus',
-        payload: response,
-      });
+
       // Login successfully
-      if (response.status === 'ok') {
+      if (response.code === 200) {
+        yield put({
+          type: 'changeLoginStatus',
+          payload: response,
+        });
+        yield put({
+          type: 'user/saveCurrentUser',
+          payload: response.result,
+        });
+        console.log('login----- ',response)
+        setStore('token',response.result.token);
+        setStore('userInfo',response.result);
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
+
         message.success('🎉 🎉 🎉  登录成功！');
         let { redirect } = params as { redirect: string };
         if (redirect) {
@@ -79,7 +89,7 @@ const Model: LoginModelType = {
       setAuthority(payload.currentAuthority);
       return {
         ...state,
-        status: payload.status,
+        status: payload.code,
         type: payload.type,
       };
     },

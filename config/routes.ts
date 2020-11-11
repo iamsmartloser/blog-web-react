@@ -17,7 +17,7 @@
       {
         path: '/',
         component: '../layouts/BasicLayout',
-        authority: ['admin', 'user'],
+        // authority: ['admin', 'user'],
         routes: [
           {
             path: '/',
@@ -34,7 +34,7 @@
             name: 'admin',
             icon: 'crown',
             component: './Admin',
-            authority: ['admin'],
+            // authority: ['admin'],
             routes: [
               {
                 path: '/admin/sub-page',

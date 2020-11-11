@@ -1,3 +1,4 @@
+import {login_url} from '@/config/api-config';
 import request from '@/utils/request';
 
 export interface LoginParamsType {
@@ -8,7 +9,7 @@ export interface LoginParamsType {
 }
 
 export async function fakeAccountLogin(params: LoginParamsType) {
-  return request('/api/login/account', {
+  return request(login_url, {
     method: 'POST',
     data: params,
   });
