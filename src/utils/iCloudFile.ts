@@ -20,7 +20,7 @@ export const iCloudCertificate = async (file: File,ob?: any) => {
           // console.log('error--------------', err)
         },
         complete(res : any){
-          console.log('complete--------------', res)
+          // console.log('complete--------------', res)
         }
       };
       observable.subscribe(observer) // 上传开始

@@ -1,4 +1,4 @@
-import {login_url} from '@/config/api-config';
+import {login_out_url, login_url} from '@/config/api-config';
 import request from '@/utils/request';
 
 export interface LoginParamsType {
@@ -10,6 +10,12 @@ export interface LoginParamsType {
 
 export async function fakeAccountLogin(params: LoginParamsType) {
   return request(login_url, {
+    method: 'POST',
+    data: params,
+  });
+}
+export async function loginOut(params: LoginParamsType) {
+  return request(login_out_url, {
     method: 'POST',
     data: params,
   });

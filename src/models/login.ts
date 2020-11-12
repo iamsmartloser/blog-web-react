@@ -1,11 +1,11 @@
 import { stringify } from 'querystring';
 import { history, Reducer, Effect } from 'umi';
 
-import { fakeAccountLogin } from '@/services/login';
+import {fakeAccountLogin, loginOut} from '@/services/login';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { message } from 'antd';
-import {setStore} from "@/utils/store";
+import {clearStore, setStore} from "@/utils/store";
 
 export interface StateType {
   status?: number;
@@ -38,6 +38,8 @@ const Model: LoginModelType = {
 
       // Login successfully
       if (response.code === 200) {
+        setStore('token',response.result.token);
+        setStore('userInfo',response.result);
         yield put({
           type: 'changeLoginStatus',
           payload: response,
@@ -46,12 +48,8 @@ const Model: LoginModelType = {
           type: 'user/saveCurrentUser',
           payload: response.result,
         });
-        console.log('login----- ',response)
-        setStore('token',response.result.token);
-        setStore('userInfo',response.result);
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
-
         message.success('🎉 🎉 🎉  登录成功！');
         let { redirect } = params as { redirect: string };
         if (redirect) {
@@ -70,16 +68,21 @@ const Model: LoginModelType = {
       }
     },
 
-    logout() {
-      const { redirect } = getPageQuery();
-      // Note: There may be security issues, please note
-      if (window.location.pathname !== '/user/login' && !redirect) {
-        history.replace({
-          pathname: '/user/login',
-          search: stringify({
-            redirect: window.location.href,
-          }),
-        });
+    *logout({ payload }, { call, put }){
+      const response = yield call(loginOut, payload);
+      if(response.code===200){
+        const { redirect } = getPageQuery();
+        clearStore();// 清除所有缓存信息
+
+        // Note: There may be security issues, please note
+        if (window.location.pathname !== '/user/login' && !redirect) {
+          history.replace({
+            pathname: '/user/login',
+            search: stringify({
+              redirect: window.location.href,
+            }),
+          });
+        }
       }
     },
   },

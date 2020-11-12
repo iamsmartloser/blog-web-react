@@ -49,4 +49,6 @@ export default {
   'menu.editor.flow': 'Flow Editor',
   'menu.editor.mind': 'Mind Editor',
   'menu.editor.koni': 'Koni Editor',
+  'menu.admin.edit-article':'Edit Article',
+  'menu.admin.article_list':'Article List',
 };

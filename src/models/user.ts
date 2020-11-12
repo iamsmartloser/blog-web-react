@@ -1,6 +1,6 @@
 import { Effect, Reducer } from 'umi';
 
-import { queryCurrent, query as queryUsers } from '@/services/user';
+import {queryCurrent, query as queryUsers, register} from '@/services/user';
 
 export interface CurrentUser {
   avatar?: string;
@@ -54,6 +54,12 @@ const UserModel: UserModelType = {
         type: 'saveCurrentUser',
         payload: response,
       });
+    },
+    *register({ payload , callback }, { call, put }) {
+      const response = yield call(register , payload);
+      if(callback){
+        callback(response)
+      }
     },
   },
 

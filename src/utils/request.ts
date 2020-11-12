@@ -29,7 +29,7 @@ const codeMessage = {
  */
 const errorHandler = (error: { response: Response }): Response => {
   const { response } = error;
-  console.log('error:',error)
+  console.error('error:',error)
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
     const { status, url } = response;

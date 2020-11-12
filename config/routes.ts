@@ -44,19 +44,18 @@
                 authority: ['admin'],
               },
               {
-                path: '/admin/edit-article',
-                name: 'edit-article',
+                path: '/admin/edit_article',
+                name: 'edit_article',
                 icon: 'edit',
                 component: './EditArticle',
-                // authority: ['admin'],
+              },
+              {
+                path: '/admin/article_list',
+                name: 'article_list',
+                icon: 'table',
+                component: './Article',
               },
             ],
-          },
-          {
-            name: 'list.table-list',
-            icon: 'table',
-            path: '/list',
-            component: './ListTableList',
           },
           {
             component: './404',
