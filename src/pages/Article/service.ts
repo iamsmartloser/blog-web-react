@@ -1,6 +1,12 @@
 import request from '@/utils/request';
-import {article_list_by_page_url} from "@/config/api-config";
+import {article_delete_url, article_list_by_page_url, article_update_url} from "@/config/api-config";
 
 export async function articleListByPage(params: any) {
   return request.post(article_list_by_page_url,{data:{...params}});
+}
+export async function deleteRecord(id: any) {
+  return request.delete(`${article_delete_url}/${id}`);
+}
+export async function updateRecord(params: any) {
+  return request.post(article_update_url,{data:{...params}});
 }

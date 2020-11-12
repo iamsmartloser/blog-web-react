@@ -1,4 +1,4 @@
-import {articleListByPage, getExcel, queryRule} from './service';
+import {articleListByPage, deleteRecord, updateRecord} from './service';
 
 const defaultData:any={
 };
@@ -11,6 +11,14 @@ const Model: any = {
   effects: {
     *getData({ payload , callback }, { call, put }) {
       const response = yield call(articleListByPage, payload);
+      if (callback) callback(response);
+    },
+    *update({ payload , callback }, { call, put }) {
+      const response = yield call(updateRecord, payload);
+      if (callback) callback(response);
+    },
+    *delete({ payload , callback }, { call, put }) {
+      const response = yield call(deleteRecord, payload);
       if (callback) callback(response);
     },
   },

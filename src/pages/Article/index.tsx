@@ -1,7 +1,7 @@
 /**
  * 后台管理-文章列表
  */
-import {Button, Card, message, Spin} from 'antd';
+import {Button, Card, message, Popconfirm, Spin} from 'antd';
 import React, {PureComponent} from 'react';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import StandardTable from '@/components/StandardTable';
@@ -10,11 +10,11 @@ import style from './style.less'
 import {PlusOutlined} from "@ant-design/icons/lib";
 import {Dispatch} from "@@/plugin-dva/connect";
 import {connect} from "@@/plugin-dva/exports";
+import {FormInstance} from "antd/lib/form";
 
-class TableList extends PureComponent<{loading: boolean,dispatch:Dispatch }, {data:any}> {
+class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, { data: any }> {
 
-  defaultOrderConfig: any = {
-  };
+  defaultOrderConfig: any = {};
 
   AdvancedSearchInitValues: any = {};
 
@@ -24,18 +24,18 @@ class TableList extends PureComponent<{loading: boolean,dispatch:Dispatch }, {da
       label: '题目',
     },
     {
-      type:'select',
-      code:'status',
+      type: 'select',
+      code: 'status',
       label: '状态',
-      children:{
-        data:['草稿','已发布'],
+      children: {
+        data: ['草稿', '已发布'],
       }
     },
   ];
 
   state: any = {
-    page:null,
-    list:[],
+    page: null,
+    list: [],
     editRow: null,
     formValue: this.AdvancedSearchInitValues,
     orderConfig: this.defaultOrderConfig
@@ -47,7 +47,7 @@ class TableList extends PureComponent<{loading: boolean,dispatch:Dispatch }, {da
 
 // 获取列表数据
   getList = (params?: any) => {
-    const {dispatch}=this.props;
+    const {dispatch} = this.props;
     const {orderConfig, formValue, page} = this.state;
     // 一些默认参数
     const defaultParams: any = {
@@ -57,12 +57,13 @@ class TableList extends PureComponent<{loading: boolean,dispatch:Dispatch }, {da
       ...params
     };
 
-    dispatch({type:'articleListModel/getData',payload:defaultParams,
-    callback:(res:any)=>{
-      if(res.code===200){
-        this.setState({page: res.page, list: res.result})
+    dispatch({
+      type: 'articleListModel/getData', payload: defaultParams,
+      callback: (res: any) => {
+        if (res.code === 200) {
+          this.setState({page: res.page, list: res.result})
+        }
       }
-    }
     });
   };
 
@@ -76,8 +77,8 @@ class TableList extends PureComponent<{loading: boolean,dispatch:Dispatch }, {da
     this.setState({formValue: values}, () => this.getList({page: {}}))
   };
 
-  handleModalVisible = (visible?: boolean,record?:any) => {
-    this.setState({visible: !!visible,editRow:record})
+  handleModalVisible = (visible?: boolean, record?: any) => {
+    this.setState({visible: !!visible, editRow: record})
   };
 
   handleCreateModalVisible = (visible?: boolean) => {
@@ -86,22 +87,24 @@ class TableList extends PureComponent<{loading: boolean,dispatch:Dispatch }, {da
 
   handleEdit = (record: any) => {
     // 弹出修改弹窗
-    this.handleModalVisible(true,record)
+    this.handleModalVisible(true, record)
   };
 
-  onEditOk = (value:any) => {
+  onEditOk = (value: any) => {
     const {dispatch} = this.props;
     const {editRow} = this.state;
-    dispatch({type: 'partnerResearch/update', payload: {id:editRow.id,...value},
-    callback:(res:any)=>{
-      if(res&&res.code===0){
-        message.success('编辑成功');
-        this.handleModalVisible();
-        this.getList()
-      }else {
-        message.error(res&&res.message||'编辑失败请重试');
+    dispatch({
+      type: 'partnerResearch/update', payload: {id: editRow.id, ...value},
+      callback: (res: any) => {
+        if (res && res.code === 0) {
+          message.success('编辑成功');
+          this.handleModalVisible();
+          this.getList()
+        } else {
+          message.error(res && res.message || '编辑失败请重试');
+        }
       }
-    }});
+    });
   };
 
 // 分页、排序、筛选变化时触发
@@ -154,13 +157,24 @@ class TableList extends PureComponent<{loading: boolean,dispatch:Dispatch }, {da
   };
 
   handleDelete = (record: any) => {
-
+    const {dispatch} = this.props;
+    dispatch({
+      type: 'articleListModel/delete', payload: record.id,
+      callback: (res: any) => {
+        if (res.code === 200) {
+          this.onReset();
+          message.success(res.message || '删除成功')
+        } else {
+          message.error(res.message || '删除失败')
+        }
+      }
+    })
   };
 
   onViewClick = (record?: any) => {
   };
 
-  columns=()=>{
+  columns = () => {
     return [
       {
         dataIndex: 'title',
@@ -179,11 +193,16 @@ class TableList extends PureComponent<{loading: boolean,dispatch:Dispatch }, {da
         align: 'center',
         render: (text: string, record: any) => {
           return (
-            <span>
-          <Button type='link' style={{marginRight: 8}} onClick={() => this.handleEdit(record)}>编辑</Button>
-          <Button type='link' style={{marginRight: 8}} onClick={() => this.handleDelete(record)}>删除</Button>
-          <Button type='link' onClick={() => this.onViewClick(record)}>查看</Button>
-         </span>
+            <>
+              <Button type='link' style={{marginRight: 8}} onClick={() => this.handleEdit(record)}>编辑</Button>
+              <Popconfirm
+                title="删除后数据不可恢复，请确认您是否要删除?"
+                placement="rightBottom"
+                onConfirm={() => this.handleDelete(record)}>
+                <Button type='link' style={{marginRight: 8}}>删除</Button>
+              </Popconfirm>
+              <Button type='link' onClick={() => this.onViewClick(record)}>查看</Button>
+            </>
           )
         }
       },
@@ -215,7 +234,7 @@ class TableList extends PureComponent<{loading: boolean,dispatch:Dispatch }, {da
                   extra: <Button type="primary"
                                  onClick={() => this.handleCreateModalVisible(true)}><PlusOutlined/>新建</Button>
                 }}
-                data={{page,list}}
+                data={{page, list}}
                 columns={this.columns()}
                 onChange={this.handleStandardTableChange}
               />
@@ -227,7 +246,7 @@ class TableList extends PureComponent<{loading: boolean,dispatch:Dispatch }, {da
   }
 }
 
-export default connect(({loading}:any)=>({
-  loading:loading.effects['articleListModel/getData']
-}))(TableList) ;
+export default connect(({loading}: any) => ({
+  loading: loading.effects['articleListModel/getData'] |loading.effects['articleListModel/delete']
+}))(TableList);
 
