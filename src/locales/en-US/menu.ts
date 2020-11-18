@@ -51,4 +51,6 @@ export default {
   'menu.editor.koni': 'Koni Editor',
   'menu.admin.edit-article':'Edit Article',
   'menu.admin.article_list':'Article List',
+  'menu.admin.article_category_list':'Article Category List',
+  'menu.admin.article_tag_list':'Article Tag List',
 };

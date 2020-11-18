@@ -55,6 +55,18 @@
                 icon: 'table',
                 component: './Article',
               },
+              {
+                path: '/admin/article_category_list',
+                name: 'article_category_list',
+                icon: 'table',
+                component: './ArticleCategory',
+              },
+              {
+                path: '/admin/article_tag_list',
+                name: 'article_tag_list',
+                icon: 'table',
+                component: './Tag',
+              },
             ],
           },
           {

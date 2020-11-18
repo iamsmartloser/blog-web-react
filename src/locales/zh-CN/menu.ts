@@ -50,5 +50,7 @@ export default {
   'menu.editor.mind': '脑图编辑器',
   'menu.editor.koni': '拓扑编辑器',
   'menu.admin.edit_article':'编辑文章',
-  'menu.admin.article_list':'文章列表',
+  'menu.admin.article_list':'文章管理',
+  'menu.admin.article_category_list':'文章分类管理',
+  'menu.admin.article_tag_list':'文章标签管理',
 };

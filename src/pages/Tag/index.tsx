@@ -1,5 +1,5 @@
 /**
- * 后台管理-文章列表
+ * 后台管理-文章标签列表
  */
 import {Button, Card, message, Popconfirm, Spin} from 'antd';
 import React, {PureComponent} from 'react';
@@ -20,16 +20,12 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
 
   AdvancedSearchConfig: any[] = [
     {
-      code: '1',
-      label: '题目',
+      code: 'Q_eq_name',
+      label: '名称',
     },
     {
-      type: 'select',
-      code: 'status',
-      label: '状态',
-      children: {
-        data: ['草稿', '已发布'],
-      }
+      code: 'Q_eq_enName',
+      label: '英文名',
     },
   ];
 
@@ -58,7 +54,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
     };
 
     dispatch({
-      type: 'articleListModel/getData', payload: defaultParams,
+      type: 'articleTagListModel/getData', payload: defaultParams,
       callback: (res: any) => {
         if (res.code === 200) {
           this.setState({page: res.page, list: res.result})
@@ -159,7 +155,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
   handleDelete = (record: any) => {
     const {dispatch} = this.props;
     dispatch({
-      type: 'articleListModel/delete', payload: record.id,
+      type: 'articleTagListModel/delete', payload: record.id,
       callback: (res: any) => {
         if (res.code === 200) {
           this.onReset();
@@ -177,13 +173,13 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
   columns = () => {
     return [
       {
-        dataIndex: 'title',
-        title: '标题',
+        dataIndex: 'name',
+        title: '名称',
         width: 120,
       },
       {
-        dataIndex: 'abstract',
-        title: '摘要',
+        dataIndex: 'enName',
+        title: '英文名',
         width: 120
       },
       {
@@ -230,7 +226,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
               />
               <StandardTable
                 toolBarConfig={{
-                  storageId: 'article_list_id',
+                  storageId: 'article_category_list_id',
                   extra: <Button type="primary"
                                  onClick={() => this.handleCreateModalVisible(true)}><PlusOutlined/>新建</Button>
                 }}
@@ -247,7 +243,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
 }
 
 export default connect(({loading}: any) => ({
-  loading: loading.effects['articleListModel/getData']?loading.effects['articleListModel/delete']:false,
-  confirmLoading: loading.effects['articleListModel/update'],
+  loading: loading.effects['articleTagListModel/getData']?loading.effects['articleTagListModel/delete']:false,
+  confirmLoading: loading.effects['articleTagListModel/update'],
 }))(TableList);
 
