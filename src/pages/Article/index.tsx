@@ -1,16 +1,15 @@
 /**
  * 后台管理-文章列表
  */
-import {Button, Card, message, Popconfirm, Spin} from 'antd';
+import {Button, message, Popconfirm, Spin} from 'antd';
 import React, {PureComponent} from 'react';
-import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import StandardTable from '@/components/StandardTable';
 import AdvancedSearch from "@/components/AdvancedSearch/AdvancedSearch";
 import style from './style.less'
 import {PlusOutlined} from "@ant-design/icons/lib";
 import {Dispatch} from "@@/plugin-dva/connect";
 import {connect} from "@@/plugin-dva/exports";
-import {FormInstance} from "antd/lib/form";
+import EditArticle from "@/pages/Article/components/EditArticle";
 
 class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, { data: any }> {
 
@@ -34,6 +33,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
   ];
 
   state: any = {
+    editStatus: 0,
     page: null,
     list: [],
     editRow: null,
@@ -77,34 +77,9 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
     this.setState({formValue: values}, () => this.getList({page: {}}))
   };
 
-  handleModalVisible = (visible?: boolean, record?: any) => {
-    this.setState({visible: !!visible, editRow: record})
-  };
-
-  handleCreateModalVisible = (visible?: boolean) => {
-    this.setState({createVisible: !!visible})
-  };
-
-  handleEdit = (record: any) => {
-    // 弹出修改弹窗
-    this.handleModalVisible(true, record)
-  };
-
-  onEditOk = (value: any) => {
-    const {dispatch} = this.props;
-    const {editRow} = this.state;
-    dispatch({
-      type: 'partnerResearch/update', payload: {id: editRow.id, ...value},
-      callback: (res: any) => {
-        if (res && res.code === 0) {
-          message.success('编辑成功');
-          this.handleModalVisible();
-          this.getList()
-        } else {
-          message.error(res && res.message || '编辑失败请重试');
-        }
-      }
-    });
+  // 0:不在编辑新增状态（列表页），1：add，2：edit
+  setEditStatus = (editStatus: number,record=null) => {
+    this.setState({editStatus, editRow:record})
   };
 
 // 分页、排序、筛选变化时触发
@@ -194,7 +169,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
         render: (text: string, record: any) => {
           return (
             <>
-              <Button type='link' style={{marginRight: 8}} onClick={() => this.handleEdit(record)}>编辑</Button>
+              <Button type='link' style={{marginRight: 8}} onClick={() => this.setEditStatus(2,record)}>编辑</Button>
               <Popconfirm
                 title="删除后数据不可恢复，请确认您是否要删除?"
                 placement="rightBottom"
@@ -210,44 +185,48 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
   };
 
   render() {
-    const {loading} = this.props;
-    const {page, list} = this.state;
+    const {loading,dispatch} = this.props;
+    const {page, list, editStatus, editRow} = this.state;
 
     return (
-      <PageHeaderWrapper>
-        <Card bordered={false}>
-          <div className={style.page_wrap}>
-            <Spin
-              tip=''
-              spinning={loading}
-            >
-              {/* 查询头 */}
-              <AdvancedSearch
-                config={this.AdvancedSearchConfig}
-                initialValues={this.AdvancedSearchInitValues}
-                onFinish={this.onFinish}
-                onReset={this.onReset}
-              />
-              <StandardTable
-                toolBarConfig={{
-                  storageId: 'article_list_id',
-                  extra: <Button type="primary"
-                                 onClick={() => this.handleCreateModalVisible(true)}><PlusOutlined/>新建</Button>
-                }}
-                data={{page, list}}
-                columns={this.columns()}
-                onChange={this.handleStandardTableChange}
-              />
-            </Spin>
-          </div>
-        </Card>
-      </PageHeaderWrapper>
+      <Spin
+        tip=''
+        spinning={loading}
+      >
+        {editStatus !== 0 ? <EditArticle
+            {...this.props}
+            editRow={editRow}
+            setEditStatus={this.setEditStatus}
+          />
+        : <div className={style.page_wrap}>
+
+          {/* 查询头 */}
+          <AdvancedSearch
+            config={this.AdvancedSearchConfig}
+            initialValues={this.AdvancedSearchInitValues}
+            onFinish={this.onFinish}
+            onReset={this.onReset}
+          />
+          <StandardTable
+            toolBarConfig={{
+              storageId: 'article_list_id',
+              extra: <Button type="primary"
+                             onClick={() => this.setEditStatus(1)}><PlusOutlined/>新建</Button>
+            }}
+            data={{page, list}}
+            columns={this.columns()}
+            onChange={this.handleStandardTableChange}
+          />
+
+        </div>}
+      </Spin>
     );
   }
 }
 
 export default connect(({loading}: any) => ({
-  loading: loading.effects['articleListModel/getData']?loading.effects['articleListModel/delete']:false,
-  confirmLoading: loading.effects['articleListModel/update'],
+  loading: !!loading.effects['articleListModel/getData']  ||!!loading.effects['articleListModel/update']
+    ||!!loading.effects['articleListModel/create']||!!loading.effects['articleListModel/delete'],
+
 }))(TableList);
 

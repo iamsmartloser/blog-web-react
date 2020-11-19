@@ -20,13 +20,14 @@ interface StandardSelectProps {
     url?:string,// 远程请求路径
     params?:any,// 远程请求参数
     // initData:any
+    lazy?:any
   };
   form?:any
 }
 
 const StandardSelect: FC<StandardSelectProps> = (props: StandardSelectProps) => {
   const {config, onChange,form,...rest} = props;
-  const {data, key, fields, parseFields, desc, text,url,params} = config;
+  const {data, key, fields, parseFields, desc, text,url,params,lazy} = config;
   const [dataSource, setDataSource] = useState<any[]>();// 源数据，可从props传入，也可传入一个service向后台获取
   const [selectValue, setSelectValue] = useState<any>();
   const [paramsValue, setParamsValue] = useState<any>(params);
@@ -36,7 +37,7 @@ const StandardSelect: FC<StandardSelectProps> = (props: StandardSelectProps) => 
     if(url&&(!dataSource||isEqual(dataSource,data))){
       setLoading(true);
       request.post(url,params).then((res:any)=>{
-        if(res&&res.code===0&&res.result){
+        if(res&&res.code===200&&res.result){
           setDataSource(res.result)
         }
       }).catch((err:any)=>{
@@ -46,6 +47,12 @@ const StandardSelect: FC<StandardSelectProps> = (props: StandardSelectProps) => 
       })
     }
   };
+  useEffect(() => {
+    console.log('lazy',lazy)
+    if(lazy!==false){
+      getDataSourceFromService()
+    }
+  }, [])
 
   useEffect(() => {
     if (!isEqual(dataSource, data)) {

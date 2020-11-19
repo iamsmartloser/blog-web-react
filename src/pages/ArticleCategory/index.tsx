@@ -242,7 +242,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
 }
 
 export default connect(({loading}: any) => ({
-  loading: loading.effects['articleCategoryListModel/getData'] |loading.effects['articleCategoryListModel/delete'],
+  loading: loading.effects['articleCategoryListModel/getData']?loading.effects['articleCategoryListModel/delete']:false,
   confirmLoading: loading.effects['articleCategoryListModel/update'],
 }))(TableList);
 

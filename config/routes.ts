@@ -44,12 +44,6 @@
                 authority: ['admin'],
               },
               {
-                path: '/admin/edit_article',
-                name: 'edit_article',
-                icon: 'edit',
-                component: './EditArticle',
-              },
-              {
                 path: '/admin/article_list',
                 name: 'article_list',
                 icon: 'table',

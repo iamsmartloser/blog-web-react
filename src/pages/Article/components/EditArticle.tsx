@@ -2,17 +2,30 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import MdEditor from 'react-markdown-editor-lite';
 import 'react-markdown-editor-lite/lib/index.css';
-import {Button, Form, Input, message} from "antd";
-import request from "@/utils/request";
-import {create_article_url} from "@/config/api-config";
+import {Button, Col, Form, Input, message, Popconfirm, Row} from "antd";
+import {article_category_all_url} from "@/config/api-config";
 import styles from "@/components/StandardForm/style.less";
 import {FormInstance} from "antd/lib/form";
+import StandardSelect from "@/components/StandardSelect";
 
-export default class EditArticle extends React.PureComponent<{}, {}> {
+export default class EditArticle extends React.PureComponent<{setEditStatus:Function}, {}> {
   formRef = React.createRef<FormInstance>();
 
   state = {
     markdown: '### 请输入文章内容',
+  };
+
+  componentDidMount(){
+    this.initData()
+  }
+
+  initData=()=>{
+    const {editRow} = this.props;
+    if(editRow){// 如果是编辑已存在的文章，则回填文章信息
+      if (this.formRef && this.formRef.current) {
+        this.formRef.current.setFieldsValue(editRow)
+      }
+    }
   };
 
   // Finish!
@@ -35,17 +48,15 @@ export default class EditArticle extends React.PureComponent<{}, {}> {
   // status 文章状态'[0草稿，1发布，2删除，3审批中]'
   save = (status: number) => {
     const {markdown} = this.state;
-    if(this.formRef&&this.formRef.current){
+    const {dispatch}=this.props;
+    if (this.formRef && this.formRef.current) {
       const values = this.formRef.current.getFieldsValue();
-      console.log('values--',values)
-      console.log('values-===-',this.formRef.current.getFieldsValue())
-      const {title , abstract} = values;
-      request.post(create_article_url, {data: {markdown, title, abstract, status}})
-        .then((res: any) => {
-          if(res.code===200){
-            message.success(status===0?'保存成功':'发布成功')
-          }
-        })
+      dispatch({type:'articleListModel/create',payload: {markdown, status, ...values},
+      callback:(res:any)=>{
+        if (res.code === 200) {
+          message.success(status === 0 ? '保存成功' : '发布成功')
+        }
+      }})
     }
   };
 
@@ -70,10 +81,28 @@ export default class EditArticle extends React.PureComponent<{}, {}> {
                 allowClear/>
             </Form.Item>
             <Button.Group style={{float: 'right', borderRadius: 5}}>
+              <Popconfirm
+                title="返回后编辑数据不做保留，请确定保存后再返回！"
+                placement="rightBottom"
+                onConfirm={() => this.props.setEditStatus(0)}>
+                <Button type='link'>返回</Button>
+              </Popconfirm>
               <Button onClick={() => this.save(0)}>保存</Button>
               <Button onClick={() => this.save(1)} type={'primary'}>发布</Button>
             </Button.Group>
           </div>
+          <Row>
+            <Col span={12}>
+              <Form.Item noStyle name='categoryId'>
+                <StandardSelect
+                  placeholder="请选择文章分类"
+                  lazy={false}
+                  style={{width: '100%'}}
+                  config={{url:article_category_all_url,key:'id', text:'name'}}
+                  allowClear/>
+              </Form.Item>
+            </Col>
+          </Row>
           <div>
             <span style={{fontSize: 14, fontWeight: "bold"}}>摘要：</span>
             <Form.Item noStyle name='abstract'>
