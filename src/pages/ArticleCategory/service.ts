@@ -8,5 +8,5 @@ export async function deleteRecord(id: any) {
   return request.delete(`${article_category_delete_url}/${id}`);
 }
 export async function updateRecord(params: any) {
-  return request.post(article_category_update_url,{data:{...params}});
+  return request.patch(article_category_update_url,{data:{...params}});
 }

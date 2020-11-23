@@ -162,6 +162,39 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
         width: 120
       },
       {
+        dataIndex: 'category.name',
+        title: '分类',
+        width: 120,
+        render:(text,record)=>{
+          return record.category.name
+        }
+      },
+      {
+        dataIndex: 'tags',
+        title: '标签',
+        width: 120,
+        render:(text,record)=>{
+         return  record.tags.reduce((res,tag,index)=>{
+            return res+tag.name+','
+          },'')
+        }
+      },
+      {
+        dataIndex: 'createdAt',
+        title: '创建时间',
+        width: 120
+      },
+      {
+        dataIndex: 'updatedAt',
+        title: '更新时间',
+        width: 120
+      },
+      {
+        dataIndex: 'publishAt',
+        title: '发布时间',
+        width: 120
+      },
+      {
         dataIndex: 'operate',
         title: '操作',
         width: 120,
@@ -169,14 +202,14 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
         render: (text: string, record: any) => {
           return (
             <>
-              <Button type='link' style={{marginRight: 8}} onClick={() => this.setEditStatus(2,record)}>编辑</Button>
+              <a style={{marginRight: 8}} onClick={() => this.setEditStatus(2,record)}>编辑</a>
               <Popconfirm
                 title="删除后数据不可恢复，请确认您是否要删除?"
                 placement="rightBottom"
                 onConfirm={() => this.handleDelete(record)}>
-                <Button type='link' style={{marginRight: 8}}>删除</Button>
+                <a style={{marginRight: 8}}>删除</a>
               </Popconfirm>
-              <Button type='link' onClick={() => this.onViewClick(record)}>查看</Button>
+              <a onClick={() => this.onViewClick(record)}>查看</a>
             </>
           )
         }
@@ -185,7 +218,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
   };
 
   render() {
-    const {loading,dispatch} = this.props;
+    const {loading} = this.props;
     const {page, list, editStatus, editRow} = this.state;
 
     return (
@@ -226,7 +259,8 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
 
 export default connect(({loading}: any) => ({
   loading: !!loading.effects['articleListModel/getData']  ||!!loading.effects['articleListModel/update']
-    ||!!loading.effects['articleListModel/create']||!!loading.effects['articleListModel/delete'],
+    ||!!loading.effects['articleListModel/create']||!!loading.effects['articleListModel/delete']
+    ||!!loading.effects['articleListModel/getDetail'],
 
 }))(TableList);
 

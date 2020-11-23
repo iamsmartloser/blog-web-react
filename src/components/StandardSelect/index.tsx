@@ -48,7 +48,6 @@ const StandardSelect: FC<StandardSelectProps> = (props: StandardSelectProps) => 
     }
   };
   useEffect(() => {
-    console.log('lazy',lazy)
     if(lazy!==false){
       getDataSourceFromService()
     }
@@ -85,10 +84,20 @@ const StandardSelect: FC<StandardSelectProps> = (props: StandardSelectProps) => 
     return res
   };
 
+  const getRecords=(keys:any)=>{
+    const res:any= dataSource?dataSource.filter((item:any)=>keys.includes(item[key])):[];
+    return res;
+  };
+
+
   const handleChange = (val: any) => {
     setSelectValue(val);
     if (onChange) {
-      onChange(val,getRecord(val),)
+      if(val instanceof Array){
+        onChange(val,getRecords(val))
+      }else {
+        onChange(val,getRecord(val))
+      }
     }
   };
 
