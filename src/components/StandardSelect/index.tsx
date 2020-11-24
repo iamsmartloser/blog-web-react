@@ -1,5 +1,4 @@
 import React, {FC, useEffect, useState} from 'react';
-import pinyin from 'pinyin';
 import {Select, Spin} from 'antd'
 import {isEqual} from 'lodash'
 import request from "@/utils/request";
@@ -115,7 +114,7 @@ const StandardSelect: FC<StandardSelectProps> = (props: StandardSelectProps) => 
       const title:any=text?item[text]:item;
       return item?<Option key={`select_option_${value}`}
                           value={value}
-                          pin-yin={pinyin(title, { style: pinyin.STYLE_NORMAL }).join('')}
+                          pin-yin={title}
       >
         <div>{title}</div>
         {desc && <div>{item[desc]}</div>}
@@ -123,10 +122,10 @@ const StandardSelect: FC<StandardSelectProps> = (props: StandardSelectProps) => 
     })
   };
 
-  // 根据下拉框的用户输入进行查询支持拼音和汉字
+  // 根据下拉框的用户输入进行查询支持拼音和汉字(只要拼音相同都可以)
   const filterOption=(input: string, option: any)=> {
     return (
-      option.props.children.indexOf(input) > -1 ||
+      option.props.children.indexOf(input) > -1||
       option.props['pin-yin'].toLowerCase().indexOf(input.toLowerCase()) > -1
     );
   };
