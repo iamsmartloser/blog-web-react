@@ -9,11 +9,13 @@ const { REACT_APP_ENV } = process.env;
 export default defineConfig({
   hash: true,
   antd: {},
+  base: '/blog-management/',
+  publicPath: '/blog-management/',
   dva: {
     hmr: true,
   },
   history: {
-    type: 'browser',
+    type: 'hash',
   },
   locale: {
     // default zh-CN
@@ -37,9 +39,9 @@ export default defineConfig({
   title: false,
   ignoreMomentLocale: true,
   proxy: proxy[REACT_APP_ENV || 'dev'],
-  manifest: {
-    basePath: '/',
-  },
+  // manifest: {
+  //   basePath: '/',
+  // },
   exportStatic: {},
   esbuild: {},
 });
