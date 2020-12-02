@@ -57,7 +57,7 @@ const request = extend({
     'Authorization': `Bearer ${getStore('token') || ''}`
   }, // 配置headers
   errorHandler, // 默认错误处理
-  credentials: 'include', // 默认请求是否带上cookie
+  // credentials: 'include', // 默认请求是否带上cookie
   // parseResponse: true,
 });
 

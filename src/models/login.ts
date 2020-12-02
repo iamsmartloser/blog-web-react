@@ -41,12 +41,12 @@ const Model: LoginModelType = {
         setStore('token',response.result.token);
         setStore('userInfo',response.result);
         yield put({
-          type: 'changeLoginStatus',
-          payload: response,
-        });
-        yield put({
           type: 'user/saveCurrentUser',
           payload: response.result,
+        });
+        yield put({
+          type: 'changeLoginStatus',
+          payload: response,
         });
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
