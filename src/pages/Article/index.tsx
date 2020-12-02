@@ -180,6 +180,11 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
         }
       },
       {
+        dataIndex: 'top',
+        title: '置顶',
+        width: 120
+      },
+      {
         dataIndex: 'createdAt',
         title: '创建时间',
         width: 120
