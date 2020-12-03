@@ -10,21 +10,36 @@ import {PlusOutlined} from "@ant-design/icons/lib";
 import {Dispatch} from "@@/plugin-dva/connect";
 import {connect} from "@@/plugin-dva/exports";
 import EditArticle from "@/pages/Article/components/EditArticle";
+import {col} from "@/utils/columnUtils";
+import {article_category_all_url, article_tag_all_url} from "@/config/api-config";
 
 class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, { data: any }> {
 
-  defaultOrderConfig: any = {};
+  defaultOrderConfig: any = [
+    ['createdAt','ASC']
+  ];
 
   AdvancedSearchInitValues: any = {};
 
   AdvancedSearchConfig: any[] = [
     {
-      code: '1',
-      label: '题目',
+      code: 'quickSearch',
+      label: '题目或内容',
     },
     {
       type: 'select',
-      code: 'status',
+      code: 'Q_eq_categoryId',
+      label: '分类',
+      children: {
+        url: article_category_all_url,
+        key: 'id',
+        text: 'name',
+        lazy:true
+      }
+    },
+    {
+      type: 'select',
+      code: 'Q_eq_status',
       label: '状态',
       children: {
         data: ['草稿', '已发布'],
@@ -45,6 +60,10 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
     this.onReset()
   }
 
+  componentDidUpdate(prevProps: any, prevState: any){
+
+  }
+
 // 获取列表数据
   getList = (params?: any) => {
     const {dispatch} = this.props;
@@ -52,10 +71,14 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
     // 一些默认参数
     const defaultParams: any = {
       ...formValue,
-      ...orderConfig,
+      order:orderConfig,
       page,
       ...params
     };
+    if(defaultParams['quickSearch']){// 快速模糊查询
+      defaultParams.quickSearchValue=defaultParams['quickSearch'];
+      defaultParams.quickSearchProperties=['title','abstract'];
+    }
 
     dispatch({
       type: 'articleListModel/getData', payload: defaultParams,
@@ -78,8 +101,12 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
   };
 
   // 0:不在编辑新增状态（列表页），1：add，2：edit
-  setEditStatus = (editStatus: number,record=null) => {
-    this.setState({editStatus, editRow:record})
+  setEditStatus = (editStatus: number, record = null) => {
+    this.setState({editStatus, editRow: record},()=>{
+      if(editStatus===0){
+        this.onReset()
+      }
+    })
   };
 
 // 分页、排序、筛选变化时触发
@@ -99,35 +126,12 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
 // order:1正序，2倒序,按某一字段排序时，其余字段排序设为0
   getOrders = (field: string, order: string) => {
     const {orderConfig} = this.state;
-    let result: any = {};
+    let result: any = [];
     if (!order) {
       result = this.defaultOrderConfig;
       return result;
     }
-    // 所有都先置为0
-    Object.keys(orderConfig).map((key: string) => {
-      result[key] = 0
-    });
-    let orderParam = 0;
-    if (order === 'ascend') {
-      orderParam = 1
-    }
-    if (order === 'descend') {
-      orderParam = 2
-    }
-    switch (field) {
-      case 'price':
-        result.priceOrder = orderParam;
-        break;
-      case 'stockQuantity':
-        result.stockQuantityOrder = orderParam;
-        break;
-      case 'saleCount':
-        result.saleCountOrder = orderParam;
-        break;
-      default:
-        break;
-    }
+    result[0]=[`${field}`,order==='ascend'?'ASC':'DESC']
     return result
   };
 
@@ -151,74 +155,43 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
 
   columns = () => {
     return [
-      {
-        dataIndex: 'title',
-        title: '标题',
-        width: 120,
-      },
-      {
-        dataIndex: 'abstract',
-        title: '摘要',
-        width: 120
-      },
-      {
-        dataIndex: 'category.name',
-        title: '分类',
-        width: 120,
-        render:(text,record)=>{
-          return record.category.name
-        }
-      },
-      {
-        dataIndex: 'tags',
-        title: '标签',
-        width: 120,
-        render:(text,record)=>{
-         return  record.tags.reduce((res,tag,index)=>{
-            return res+tag.name+','
-          },'')
-        }
-      },
-      {
-        dataIndex: 'top',
-        title: '置顶',
-        width: 120
-      },
-      {
-        dataIndex: 'createdAt',
-        title: '创建时间',
-        width: 120
-      },
-      {
-        dataIndex: 'updatedAt',
-        title: '更新时间',
-        width: 120
-      },
-      {
-        dataIndex: 'publishAt',
-        title: '发布时间',
-        width: 120
-      },
-      {
-        dataIndex: 'operate',
-        title: '操作',
-        width: 120,
-        align: 'center',
-        render: (text: string, record: any) => {
+      col('title', '标题'),
+      col('abstract', '摘要', 200),
+      col('category.name', '分类'),
+      col('tags', '标签', undefined, undefined, undefined,
+        (text: any, record: any) => {
+          return record.tags.reduce((res:string, tag:any, index:number) => {
+            if(index===0){
+              res = tag.name;
+            }else {
+              res = res + tag.name +'，';
+            }
+            return res;
+          }, '')
+        }),
+      col('status.remark', '状态',60),
+      col('top', '置顶',60),
+      col('user.name', '作者', undefined, undefined, undefined,
+        (text: any, record: any) => {
+          return record.user && record.user.name || '_'
+        }),
+      col('createdAt', '创建时间', undefined,true),
+      col('updatedAt', '更新时间', undefined,true),
+      col('publishAt', '发布时间', undefined,true),
+      col('operate', '操作', 90, undefined, 'right',
+        (text: string, record: any) => {
           return (
             <>
-              <a style={{marginRight: 8}} onClick={() => this.setEditStatus(2,record)}>编辑</a>
+              <a style={{marginRight: 8}} onClick={() => this.setEditStatus(2, record)}>编辑</a>
               <Popconfirm
                 title="删除后数据不可恢复，请确认您是否要删除?"
                 placement="rightBottom"
                 onConfirm={() => this.handleDelete(record)}>
                 <a style={{marginRight: 8}}>删除</a>
               </Popconfirm>
-              <a onClick={() => this.onViewClick(record)}>查看</a>
             </>
           )
-        }
-      },
+        }),
     ]
   };
 
@@ -236,36 +209,36 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
             editRow={editRow}
             setEditStatus={this.setEditStatus}
           />
-        : <div className={style.page_wrap}>
+          : <div className={style.page_wrap}>
 
-          {/* 查询头 */}
-          <AdvancedSearch
-            config={this.AdvancedSearchConfig}
-            initialValues={this.AdvancedSearchInitValues}
-            onFinish={this.onFinish}
-            onReset={this.onReset}
-          />
-          <StandardTable
-            toolBarConfig={{
-              storageId: 'article_list_id',
-              extra: <Button type="primary"
-                             onClick={() => this.setEditStatus(1)}><PlusOutlined/>新建</Button>
-            }}
-            data={{page, list}}
-            columns={this.columns()}
-            onChange={this.handleStandardTableChange}
-          />
+            {/* 查询头 */}
+            <AdvancedSearch
+              config={this.AdvancedSearchConfig}
+              initialValues={this.AdvancedSearchInitValues}
+              onFinish={this.onFinish}
+              onReset={this.onReset}
+            />
+            <StandardTable
+              toolBarConfig={{
+                storageId: 'article_list_id',
+                extra: <Button type="primary"
+                               onClick={() => this.setEditStatus(1)}><PlusOutlined/>新建</Button>
+              }}
+              data={{page, list}}
+              columns={this.columns()}
+              onChange={this.handleStandardTableChange}
+            />
 
-        </div>}
+          </div>}
       </Spin>
     );
   }
 }
 
 export default connect(({loading}: any) => ({
-  loading: !!loading.effects['articleListModel/getData']  ||!!loading.effects['articleListModel/update']
-    ||!!loading.effects['articleListModel/create']||!!loading.effects['articleListModel/delete']
-    ||!!loading.effects['articleListModel/getDetail'],
+  loading: !!loading.effects['articleListModel/getData'] || !!loading.effects['articleListModel/update']
+    || !!loading.effects['articleListModel/create'] || !!loading.effects['articleListModel/delete']
+    || !!loading.effects['articleListModel/getDetail'],
 
 }))(TableList);
 

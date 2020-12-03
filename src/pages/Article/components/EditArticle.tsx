@@ -2,7 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import MdEditor from 'react-markdown-editor-lite';
 import 'react-markdown-editor-lite/lib/index.css';
-import {Button, Form, Input, message, Popconfirm, Row} from "antd";
+import {Button, Form, Input, message, Popconfirm, Row, Modal} from "antd";
 import {article_category_all_url, article_tag_all_url} from "@/config/api-config";
 import styles from "../style.less";
 import {FormInstance} from "antd/lib/form";
@@ -71,10 +71,19 @@ export default class EditArticle extends React.PureComponent<{ setEditStatus: Fu
         type: type, payload: params,
         callback: (res: any) => {
           if (res.code === 200) {
-            message.success(status === 0 ? '保存成功' : '发布成功');
-            if(res.result.id){// 新增时会返回文章id，便于不退出页面再次编辑
-              this.setState({id:res.result.id})
-            }
+            // message.success(status === 0 ? '保存成功' : '发布成功');
+            Modal.confirm({
+              content: status === 0 ? '保存成功' : '发布成功',
+              onOk:()=>{this.props.setEditStatus(0)},
+              onCancel:()=> {
+                if(res.result&&res.result.id){// 新增时会返回文章id，便于不退出页面再次编辑
+                  this.setState({id:res.result.id})
+                }
+              },
+              okText: '返回',
+              cancelText: '继续编辑'
+            });
+
           }
         }
       })
@@ -117,18 +126,17 @@ export default class EditArticle extends React.PureComponent<{ setEditStatus: Fu
             >
               <StandardSelect
                 placeholder="请选择文章分类"
-                lazy={false}
+                // lazy={false}
                 style={{width: 220, marginRight: 8}}
-                config={{url: article_category_all_url, key: 'id', text: 'name'}}
+                config={{url: article_category_all_url, key: 'id', text: 'name',lazy:false}}
                 allowClear/>
             </Form.Item>
             <Form.Item name='tags' label={<span className={styles.label_style}>文章标签</span>}>
               <StandardSelect
                 placeholder="请选择文章标签"
                 mode="multiple"
-                lazy={false}
                 style={{width: 350}}
-                config={{url: article_tag_all_url, key: 'id', text: 'name'}}
+                config={{url: article_tag_all_url, key: 'id', text: 'name',lazy:false}}
                 allowClear/>
             </Form.Item>
           </Row>

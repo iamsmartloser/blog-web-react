@@ -225,7 +225,14 @@ class StandardTable extends PureComponent<StandardTableProps<TableListItem>, Sta
           onResize: this.handleResize(index),
         }),
         render: item.render ? item.render
-          : (val: any) => {
+          : (value: any,record:any) => {
+          let val=value;
+            if(item.dataIndex.includes('.')){// dataIndex形如：obj.obj.obj.a这样嵌套的
+              const arr=item.dataIndex.split('.')
+              val= arr.reduce((res,cur)=>{
+                return res&&res[cur]?res[cur]:''
+              },record)
+            }
             return (<Tooltip
               title={(val === undefined || val === null || val === '') ? '_' : val}
               trigger='hover'

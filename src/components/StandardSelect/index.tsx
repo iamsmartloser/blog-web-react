@@ -47,7 +47,7 @@ const StandardSelect: FC<StandardSelectProps> = (props: StandardSelectProps) => 
     }
   };
   useEffect(() => {
-    if(lazy!==false){
+    if(lazy===false){
       getDataSourceFromService()
     }
   }, [])
