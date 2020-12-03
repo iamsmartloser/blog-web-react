@@ -52,13 +52,22 @@ const errorHandler = (error: { response: Response }): Response => {
  * 配置request请求时的默认参数
  */
 const request = extend({
-  headers: {
-    // 'Content-Type': 'application/json',
-    'Authorization': `Bearer ${getStore('token') || ''}`
-  }, // 配置headers
   errorHandler, // 默认错误处理
   // credentials: 'include', // 默认请求是否带上cookie
   // parseResponse: true,
+});
+
+// 配置请求拦截器
+request.interceptors.request.use((url: string, config: any) => {
+  const token=getStore('token')
+  if (token) {
+    const headers:any =  {
+        // 'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getStore('token') || ''}`
+      } ;// 配置headers
+    config.headers = headers;
+  }
+  return { url, config };
 });
 
 
