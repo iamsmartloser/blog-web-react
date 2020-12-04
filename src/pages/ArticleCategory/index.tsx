@@ -10,6 +10,7 @@ import style from './style.less'
 import {PlusOutlined} from "@ant-design/icons/lib";
 import {Dispatch} from "@@/plugin-dva/connect";
 import {connect} from "@@/plugin-dva/exports";
+import EditModal from "@/pages/ArticleCategory/components/EditModal";
 
 class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, { data: any }> {
 
@@ -76,30 +77,24 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
     this.setState({visible: !!visible, editRow: record})
   };
 
-  handleCreateModalVisible = (visible?: boolean) => {
-    this.setState({createVisible: !!visible})
-  };
-
-  handleEdit = (record: any) => {
-    // 弹出修改弹窗
-    this.handleModalVisible(true, record)
-  };
-
   onEditOk = (value: any) => {
     const {dispatch} = this.props;
     const {editRow} = this.state;
+    const params=value;
+    if(editRow&&editRow.id){
+      params.id=editRow.id
+    }
     dispatch({
-      type: 'partnerResearch/update', payload: {id: editRow.id, ...value},
+      type: 'articleCategoryListModel/delete', payload: params,
       callback: (res: any) => {
-        if (res && res.code === 0) {
-          message.success('编辑成功');
-          this.handleModalVisible();
-          this.getList()
+        if (res.code === 200) {
+          this.onReset();
+          message.success(res.message || '操作成功')
         } else {
-          message.error(res && res.message || '编辑失败请重试');
+          message.error(res.message || '操作失败')
         }
       }
-    });
+    })
   };
 
 // 分页、排序、筛选变化时触发
@@ -189,7 +184,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
         render: (text: string, record: any) => {
           return (
             <>
-              <Button type='link' style={{marginRight: 8}} onClick={() => this.handleEdit(record)}>编辑</Button>
+              <Button type='link' style={{marginRight: 8}} onClick={() => this.handleModalVisible(true,record)}>编辑</Button>
               <Popconfirm
                 title="删除后数据不可恢复，请确认您是否要删除?"
                 placement="rightBottom"
@@ -205,8 +200,8 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
   };
 
   render() {
-    const {loading} = this.props;
-    const {page, list} = this.state;
+    const {loading,confirmLoading} = this.props;
+    const {page, list,visible,editRow,} = this.state;
 
     return (
       <PageHeaderWrapper>
@@ -227,12 +222,18 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
                 toolBarConfig={{
                   storageId: 'article_category_list_id',
                   extra: <Button type="primary"
-                                 onClick={() => this.handleCreateModalVisible(true)}><PlusOutlined/>新建</Button>
+                                 onClick={() => this.handleModalVisible(true)}><PlusOutlined/>新建</Button>
                 }}
                 data={{page, list}}
                 columns={this.columns()}
                 onChange={this.handleStandardTableChange}
               />
+              {visible&&<EditModal
+                modalVisible={visible}
+                handleModalVisible={this.handleModalVisible}
+                data={editRow}
+                onOk={this.onEditOk}
+                confirmLoading={confirmLoading}/>}
             </Spin>
           </div>
         </Card>

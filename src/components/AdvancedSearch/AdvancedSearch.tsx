@@ -61,6 +61,9 @@ const AdvancedSearch: FC<AdvancedSearchProps> = (props) => {
       case 'none':
         itemComponent =<Input allowClear maxLength={50} bordered={false} disabled={true} {...rest} />;
         break;
+      case 'check':
+        itemComponent =<Checkbox {...rest}/>;
+        break;
       //  数字框
       case 'number':
         // 是否转化千分位显示

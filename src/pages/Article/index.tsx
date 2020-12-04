@@ -1,7 +1,7 @@
 /**
  * 后台管理-文章列表
  */
-import {Button, message, Popconfirm, Spin} from 'antd';
+import {Button, Checkbox, message, Popconfirm, Spin} from 'antd';
 import React, {PureComponent} from 'react';
 import StandardTable from '@/components/StandardTable';
 import AdvancedSearch from "@/components/AdvancedSearch/AdvancedSearch";
@@ -12,11 +12,12 @@ import {connect} from "@@/plugin-dva/exports";
 import EditArticle from "@/pages/Article/components/EditArticle";
 import {col} from "@/utils/columnUtils";
 import {article_category_all_url, article_tag_all_url} from "@/config/api-config";
+import {getStore} from "@/utils/store";
 
 class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, { data: any }> {
 
   defaultOrderConfig: any = [
-    ['createdAt','ASC']
+    ['createdAt', 'ASC']
   ];
 
   AdvancedSearchInitValues: any = {};
@@ -34,7 +35,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
         url: article_category_all_url,
         key: 'id',
         text: 'name',
-        lazy:true
+        lazy: true
       }
     },
     {
@@ -60,7 +61,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
     this.onReset()
   }
 
-  componentDidUpdate(prevProps: any, prevState: any){
+  componentDidUpdate(prevProps: any, prevState: any) {
 
   }
 
@@ -71,13 +72,13 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
     // 一些默认参数
     const defaultParams: any = {
       ...formValue,
-      order:orderConfig,
+      order: orderConfig,
       page,
       ...params
     };
-    if(defaultParams['quickSearch']){// 快速模糊查询
-      defaultParams.quickSearchValue=defaultParams['quickSearch'];
-      defaultParams.quickSearchProperties=['title','abstract'];
+    if (defaultParams['quickSearch']) {// 快速模糊查询
+      defaultParams.quickSearchValue = defaultParams['quickSearch'];
+      defaultParams.quickSearchProperties = ['title', 'abstract'];
     }
 
     dispatch({
@@ -102,8 +103,8 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
 
   // 0:不在编辑新增状态（列表页），1：add，2：edit
   setEditStatus = (editStatus: number, record = null) => {
-    this.setState({editStatus, editRow: record},()=>{
-      if(editStatus===0){
+    this.setState({editStatus, editRow: record}, () => {
+      if (editStatus === 0) {
         this.onReset()
       }
     })
@@ -131,7 +132,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
       result = this.defaultOrderConfig;
       return result;
     }
-    result[0]=[`${field}`,order==='ascend'?'ASC':'DESC']
+    result[0] = [`${field}`, order === 'ascend' ? 'ASC' : 'DESC']
     return result
   };
 
@@ -160,24 +161,24 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
       col('category.name', '分类'),
       col('tags', '标签', undefined, undefined, undefined,
         (text: any, record: any) => {
-          return record.tags.reduce((res:string, tag:any, index:number) => {
-            if(index===0){
+          return record.tags.reduce((res: string, tag: any, index: number) => {
+            if (index === 0) {
               res = tag.name;
-            }else {
-              res = res + tag.name +'，';
+            } else {
+              res = res + tag.name + '，';
             }
             return res;
           }, '')
         }),
-      col('status.remark', '状态',60),
-      col('top', '置顶',60),
+      col('status.remark', '状态', 60),
+      col('top', '置顶', 60),
       col('user.name', '作者', undefined, undefined, undefined,
         (text: any, record: any) => {
           return record.user && record.user.name || '_'
         }),
-      col('createdAt', '创建时间', undefined,true),
-      col('updatedAt', '更新时间', undefined,true),
-      col('publishAt', '发布时间', undefined,true),
+      col('createdAt', '创建时间', undefined, true),
+      col('updatedAt', '更新时间', undefined, true),
+      col('publishAt', '发布时间', undefined, true),
       col('operate', '操作', 90, undefined, 'right',
         (text: string, record: any) => {
           return (
@@ -198,7 +199,19 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
   render() {
     const {loading} = this.props;
     const {page, list, editStatus, editRow} = this.state;
-
+    const userInfo = getStore('userInfo');
+    let AdvancedSearchConfig = this.AdvancedSearchConfig;
+    if(userInfo.role===1){// 管理员
+      AdvancedSearchConfig=[...this.AdvancedSearchConfig,
+        {
+          type: 'check',
+          code: 'include',
+          label: '包含所有人文章',
+          formItemConfig: {
+            valuePropName : "checked"
+          },
+        },]
+    }
     return (
       <Spin
         tip=''
@@ -213,7 +226,7 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
 
             {/* 查询头 */}
             <AdvancedSearch
-              config={this.AdvancedSearchConfig}
+              config={AdvancedSearchConfig}
               initialValues={this.AdvancedSearchInitValues}
               onFinish={this.onFinish}
               onReset={this.onReset}
