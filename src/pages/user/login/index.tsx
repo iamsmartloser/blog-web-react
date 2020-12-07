@@ -119,13 +119,13 @@ const Login: React.FC<LoginProps> = (props) => {
               defaultMessage: '账户密码登录',
             })}
           />
-          <Tabs.TabPane
-            key="register"
-            tab={intl.formatMessage({
-              id: 'pages.login.register.tab',
-              defaultMessage: '注册',
-            })}
-          />
+          {/*<Tabs.TabPane*/}
+          {/*  key="register"*/}
+          {/*  tab={intl.formatMessage({*/}
+          {/*    id: 'pages.login.register.tab',*/}
+          {/*    defaultMessage: '注册',*/}
+          {/*  })}*/}
+          {/*/>*/}
         </Tabs>
 
         {status !== 200 && loginType === 'account' && !submitting && (

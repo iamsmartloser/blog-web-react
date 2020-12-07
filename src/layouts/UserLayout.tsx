@@ -1,6 +1,6 @@
 import { DefaultFooter, MenuDataItem, getMenuData, getPageTitle } from '@ant-design/pro-layout';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { Link, SelectLang, useIntl, ConnectProps, connect, FormattedMessage } from 'umi';
+import { Link, SelectLang, useIntl, ConnectProps, connect } from 'umi';
 import React from 'react';
 import { ConnectState } from '@/models/connect';
 import logo from '../assets/logo.svg';
@@ -58,7 +58,29 @@ const UserLayout: React.FC<UserLayoutProps> = (props) => {
           </div>
           {children}
         </div>
-        <DefaultFooter />
+        <DefaultFooter
+          copyright={`${new Date().getFullYear()+1} Xian个人学习笔记`}
+          links={[
+            {
+              key: 'Xian',
+              title: 'Xian',
+              href: 'http://47.108.152.55',
+              blankTarget: true,
+            },
+            // {
+            //   key: 'github',
+            //   title: <GithubOutlined />,
+            //   href: 'https://github.com/ant-design/ant-design-pro',
+            //   blankTarget: true,
+            // },
+            // {
+            //   key: 'Ant Design',
+            //   title: 'Ant Design',
+            //   href: 'https://ant.design',
+            //   blankTarget: true,
+            // },
+          ]}
+        />
       </div>
     </HelmetProvider>
   );
