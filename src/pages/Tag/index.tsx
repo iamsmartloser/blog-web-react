@@ -11,6 +11,7 @@ import {PlusOutlined} from "@ant-design/icons/lib";
 import {Dispatch} from "@@/plugin-dva/connect";
 import {connect} from "@@/plugin-dva/exports";
 import EditModal from "./components/EditModal";
+import {getStore} from "@/utils/store";
 
 class TableList extends PureComponent<{ loading: boolean, confirmLoading:boolean,dispatch: Dispatch }, { data: any }> {
 
@@ -174,7 +175,7 @@ class TableList extends PureComponent<{ loading: boolean, confirmLoading:boolean
   };
 
   columns = () => {
-    return [
+    const col = [
       {
         dataIndex: 'name',
         title: '名称',
@@ -185,33 +186,39 @@ class TableList extends PureComponent<{ loading: boolean, confirmLoading:boolean
         title: '英文名',
         width: 120
       },
-      {
-        dataIndex: 'operate',
-        title: '操作',
-        width: 120,
-        align: 'center',
-        render: (text: string, record: any) => {
-          return (
-            <>
-              <Button type='link' style={{marginRight: 8}} onClick={() => this.handleEdit(record)}>编辑</Button>
-              <Popconfirm
-                title="删除后数据不可恢复，请确认您是否要删除?"
-                placement="rightBottom"
-                onConfirm={() => this.handleDelete(record)}>
-                <Button type='link' style={{marginRight: 8}}>删除</Button>
-              </Popconfirm>
-              <Button type='link' onClick={() => this.onViewClick(record)}>查看</Button>
-            </>
-          )
-        }
-      },
     ]
+    const userInfo = getStore('userInfo');
+    if(userInfo.role === 1){
+      col.push(
+        {
+          dataIndex: 'operate',
+          title: '操作',
+          width: 120,
+          align: 'center',
+          render: (text: string, record: any) => {
+            return (
+              <>
+                <Button type='link' style={{marginRight: 8}} onClick={() => this.handleEdit(record)}>编辑</Button>
+                <Popconfirm
+                  title="删除后数据不可恢复，请确认您是否要删除?"
+                  placement="rightBottom"
+                  onConfirm={() => this.handleDelete(record)}>
+                  <Button type='link' style={{marginRight: 8}}>删除</Button>
+                </Popconfirm>
+                <Button type='link' onClick={() => this.onViewClick(record)}>查看</Button>
+              </>
+            )
+          }
+        }
+      )
+    }
+    return col
   };
 
   render() {
     const {loading,confirmLoading} = this.props;
     const {page, list,visible,editRow} = this.state;
-
+    const userInfo = getStore('userInfo');
     return (
       <PageHeaderWrapper>
         <Card bordered={false}>
@@ -230,8 +237,8 @@ class TableList extends PureComponent<{ loading: boolean, confirmLoading:boolean
               <StandardTable
                 toolBarConfig={{
                   storageId: 'article_category_list_id',
-                  extra: <Button type="primary"
-                                 onClick={() => this.handleModalVisible(true)}><PlusOutlined/>新建</Button>
+                  extra: userInfo.role===1?<Button type="primary"
+                                 onClick={() => this.handleModalVisible(true)}><PlusOutlined/>新建</Button>:''
                 }}
                 data={{page, list}}
                 columns={this.columns()}

@@ -16,7 +16,7 @@ export default {
       },
     },
     '/api/': {
-      target: 'http://47.108.152.55:7001',
+      target: 'http://127.0.0.1:7001',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
