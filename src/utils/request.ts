@@ -2,8 +2,8 @@
  * request 网络请求工具
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
-import { extend } from 'umi-request';
-import { notification } from 'antd';
+import {extend} from 'umi-request';
+import {notification} from 'antd';
 import {getStore} from "@/utils/store";
 
 const codeMessage = {
@@ -27,11 +27,12 @@ const codeMessage = {
 /**
  * 异常处理程序
  */
-const errorHandler = (error: { response: Response }): Response => {
+const errorHandler = async (error: { response: Response }): Response => {
   const { response } = error;
-  console.error('error:',error)
+  const data = await  response.clone().json()
+
   if (response && response.status) {
-    const errorText = codeMessage[response.status] || response.statusText;
+    const errorText = (data&&data['message']) || codeMessage[response.status] || response.statusText;
     const { status, url } = response;
 
     notification.error({
@@ -45,7 +46,7 @@ const errorHandler = (error: { response: Response }): Response => {
       message: '网络异常',
     });
   }
-  return response;
+  return data;
 };
 
 /**
@@ -57,18 +58,21 @@ const request = extend({
   // parseResponse: true,
 });
 
-// 配置请求拦截器
-request.interceptors.request.use((url: string, config: any) => {
-  const token=getStore('token')
-  if (token) {
-    const headers:any =  {
-        // 'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getStore('token') || ''}`
-      } ;// 配置headers
-    config.headers = headers;
-  }
-  return { url, config };
+// 配置返回拦截器
+request.interceptors.response.use(response => {
+  // console.log('response.use', response)
+  return response
 });
 
-
+request.interceptors.request.use((url: string, config: any) => {
+  const token = getStore('token')
+  if (token) {
+    const headers: any = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getStore('token') || ''}`
+    };// 配置headers
+    config.headers = headers;
+  }
+  return {url, config};
+});
 export default request;

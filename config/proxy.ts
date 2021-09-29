@@ -8,7 +8,7 @@
 export default {
   dev: {
     '/base_service': {
-      target: 'http://127.0.0.1:7001',//http://47.108.152.55:7001',
+      target: 'http://127.0.0.1:7001',//http://127.0.0.1:7001',//http://47.108.152.55:7001',
       changeOrigin: true,
       // timeout: 1000*60*3,
       pathRewrite: {
@@ -16,7 +16,7 @@ export default {
       },
     },
     '/api/': {
-      target: 'https://preview.pro.ant.design',
+      target: 'http://47.108.152.55:7001',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },

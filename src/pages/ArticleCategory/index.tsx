@@ -12,7 +12,7 @@ import {Dispatch} from "@@/plugin-dva/connect";
 import {connect} from "@@/plugin-dva/exports";
 import EditModal from "@/pages/ArticleCategory/components/EditModal";
 
-class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, { data: any }> {
+class TableList extends PureComponent<{ loading: boolean, confirmLoading:boolean,dispatch: Dispatch }, { data: any }> {
 
   defaultOrderConfig: any = {};
 
@@ -81,14 +81,18 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
     const {dispatch} = this.props;
     const {editRow} = this.state;
     const params=value;
+    let type:string = 'articleCategoryListModel/create'
     if(editRow&&editRow.id){
       params.id=editRow.id
+      type = 'articleCategoryListModel/update'
     }
     dispatch({
-      type: 'articleCategoryListModel/delete', payload: params,
+      type,
+      payload: params,
       callback: (res: any) => {
         if (res.code === 200) {
           this.onReset();
+          this.handleModalVisible()
           message.success(res.message || '操作成功')
         } else {
           message.error(res.message || '操作失败')
@@ -191,7 +195,6 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
                 onConfirm={() => this.handleDelete(record)}>
                 <Button type='link' style={{marginRight: 8}}>删除</Button>
               </Popconfirm>
-              <Button type='link' onClick={() => this.onViewClick(record)}>查看</Button>
             </>
           )
         }
@@ -244,6 +247,6 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
 
 export default connect(({loading}: any) => ({
   loading: loading.effects['articleCategoryListModel/getData']?loading.effects['articleCategoryListModel/delete']:false,
-  confirmLoading: loading.effects['articleCategoryListModel/update'],
+  confirmLoading: loading.effects['articleCategoryListModel/update']||loading.effects['articleCategoryListModel/create'],
 }))(TableList);
 

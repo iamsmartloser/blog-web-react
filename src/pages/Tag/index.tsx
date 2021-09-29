@@ -10,9 +10,9 @@ import style from './style.less'
 import {PlusOutlined} from "@ant-design/icons/lib";
 import {Dispatch} from "@@/plugin-dva/connect";
 import {connect} from "@@/plugin-dva/exports";
-import {FormInstance} from "antd/lib/form";
+import EditModal from "./components/EditModal";
 
-class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, { data: any }> {
+class TableList extends PureComponent<{ loading: boolean, confirmLoading:boolean,dispatch: Dispatch }, { data: any }> {
 
   defaultOrderConfig: any = {};
 
@@ -77,10 +77,6 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
     this.setState({visible: !!visible, editRow: record})
   };
 
-  handleCreateModalVisible = (visible?: boolean) => {
-    this.setState({createVisible: !!visible})
-  };
-
   handleEdit = (record: any) => {
     // 弹出修改弹窗
     this.handleModalVisible(true, record)
@@ -89,13 +85,20 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
   onEditOk = (value: any) => {
     const {dispatch} = this.props;
     const {editRow} = this.state;
+    let type:string = 'articleTagListModel/create'
+    const params=value;
+    if(editRow&&editRow.id){
+      params.id=editRow.id
+      type = 'articleTagListModel/update'
+    }
     dispatch({
-      type: 'partnerResearch/update', payload: {id: editRow.id, ...value},
+      type: type,
+      payload: params,
       callback: (res: any) => {
-        if (res && res.code === 0) {
+        if (res && res.code === 200) {
           message.success('编辑成功');
           this.handleModalVisible();
-          this.getList()
+          this.onReset()
         } else {
           message.error(res && res.message || '编辑失败请重试');
         }
@@ -206,8 +209,8 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
   };
 
   render() {
-    const {loading} = this.props;
-    const {page, list} = this.state;
+    const {loading,confirmLoading} = this.props;
+    const {page, list,visible,editRow} = this.state;
 
     return (
       <PageHeaderWrapper>
@@ -228,12 +231,18 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
                 toolBarConfig={{
                   storageId: 'article_category_list_id',
                   extra: <Button type="primary"
-                                 onClick={() => this.handleCreateModalVisible(true)}><PlusOutlined/>新建</Button>
+                                 onClick={() => this.handleModalVisible(true)}><PlusOutlined/>新建</Button>
                 }}
                 data={{page, list}}
                 columns={this.columns()}
                 onChange={this.handleStandardTableChange}
               />
+              {visible&&<EditModal
+                modalVisible={visible}
+                handleModalVisible={this.handleModalVisible}
+                data={editRow}
+                onOk={this.onEditOk}
+                confirmLoading={confirmLoading}/>}
             </Spin>
           </div>
         </Card>
@@ -244,6 +253,6 @@ class TableList extends PureComponent<{ loading: boolean, dispatch: Dispatch }, 
 
 export default connect(({loading}: any) => ({
   loading: loading.effects['articleTagListModel/getData']?loading.effects['articleTagListModel/delete']:false,
-  confirmLoading: loading.effects['articleTagListModel/update'],
+  confirmLoading: loading.effects['articleTagListModel/update']||loading.effects['articleTagListModel/create'],
 }))(TableList);
 

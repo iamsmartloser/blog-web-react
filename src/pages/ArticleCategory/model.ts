@@ -1,4 +1,4 @@
-import {listByPage, deleteRecord, updateRecord} from './service';
+import {listByPage, deleteRecord, updateRecord,createRecord} from './service';
 
 const defaultData:any={
 };
@@ -11,6 +11,10 @@ const Model: any = {
   effects: {
     *getData({ payload , callback }, { call, put }) {
       const response = yield call(listByPage, payload);
+      if (callback) callback(response);
+    },
+    *create({ payload , callback }, { call, put }) {
+      const response = yield call(createRecord, payload);
       if (callback) callback(response);
     },
     *update({ payload , callback }, { call, put }) {

@@ -35,7 +35,6 @@ const Model: LoginModelType = {
   effects: {
     *login({ payload }, { call, put }) {
       const response = yield call(fakeAccountLogin, payload);
-
       // Login successfully
       if (response.code === 200) {
         setStore('token',response.result.token);
@@ -65,6 +64,8 @@ const Model: LoginModelType = {
           }
         }
         history.replace(redirect || '/');
+      }else {
+
       }
     },
 
